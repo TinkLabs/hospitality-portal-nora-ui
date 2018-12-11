@@ -1,0 +1,132 @@
+import React from 'react';
+import { connect } from 'react-redux';
+
+import { withStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+
+import Drawer from '@material-ui/core/Drawer';
+import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import InboxIcon from '@material-ui/icons/MoveToInbox';
+import MailIcon from '@material-ui/icons/Mail';
+
+import LinearLoadingBar from './components/LinearLoadingBar';
+
+import { toggleMenu } from './redux/actions';
+
+const styles = {
+  wrapper: {
+    borderRadius: "10px",
+    margin: "0 auto",
+    width: "80%",
+    backgroundColor: "#fff",
+    marginTop: "10px"
+  },
+  background: {
+    backgroundColor: "#ddd",
+    margin: "0",
+    padding: "0",
+    height: "-webkit-fill-available"
+  },
+  list: {
+    width: 250,
+  },
+  title: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginRight: 20,
+    marginLeft: 20
+  },
+  
+};
+
+const sideList = (
+  <div className={styles.list}>
+    <List>
+      {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+        <ListItem button key={text}>
+          <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+          <ListItemText primary={text} />
+        </ListItem>
+      ))}
+    </List>
+    <Divider />
+    <List>
+      {['All mail', 'Trash', 'Spam'].map((text, index) => (
+        <ListItem button key={text}>
+          <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+          <ListItemText primary={text} />
+        </ListItem>
+      ))}
+    </List>
+  </div>
+);
+class Layout extends React.Component{
+  
+  constructor(props){
+    super(props);
+    this.toggleMenu = this.toggleMenu.bind(this);
+  }
+  
+  toggleMenu(open) {
+    this.props.toggleMenu(open);
+  }
+  
+  render(){
+    console.log("fetching:"+this.props.fetching);
+    return (
+      <div className={this.props.classes.background}>
+        <LinearLoadingBar visable={this.props.fetching}/>
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton className={this.props.classes.menuButton} color="inherit" aria-label="Menu" onClick={() => this.toggleMenu(true)}>
+              <MenuIcon />
+            </IconButton>
+            <Typography className={this.props.classes.title} variant="h6" color="inherit">
+              {this.props.title}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Drawer open={this.props.showMenu} onClose={() => {this.toggleMenu(false)}}>
+          <div
+            tabIndex={0}
+            role="button"
+            onKeyDown={() => {this.toggleMenu(false)}}
+            onClick={() => {this.toggleMenu(false)}}
+          >
+            {sideList}
+          </div>
+        </Drawer>
+        <div className={this.props.classes.wrapper}>
+          {this.props.children}
+        </div>
+      </div>
+    )
+  }
+  
+}
+
+let mapStateToProps = (state) => {
+  let ui = state.ui;
+  return {
+    showMenu: ui.get('showMenu'),
+    title: ui.get('title'),
+    fetching: ui.get('fetching'),
+  };
+}
+
+let mapActionToProps = {
+  toggleMenu,
+};
+
+
+export default connect(mapStateToProps, mapActionToProps)(withStyles(styles)(Layout));

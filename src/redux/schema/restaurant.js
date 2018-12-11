@@ -1,0 +1,37 @@
+import { Record, List } from 'immutable'
+
+const RestaurantRecord = Record({
+  _id: "",
+  name: "",
+  budget: "",
+  staff_like_count: "",
+  cover_image: "",
+  images: "",
+  categories: List(),
+  areas: List(),
+  lat: 0,
+  lng: 0,
+  tel: "",
+  fax: "",
+  idd: "",
+  address: "",
+  description: "",
+  url_website: "",
+  url_reservation: "",
+  url_coupon: "",
+  url_qrcode: "",
+  info_opentime: "",
+  info_holiday: "",
+  info_party: "",
+  info_lunch: "",
+  info_cc: "",
+  info_e_money: "",
+  access_line: "",
+  access_station: "",
+  access_station_exit: "",
+  access_walk: "",
+  access_note: "",
+  access_parking: "",
+});
+
+export default RestaurantRecord;
