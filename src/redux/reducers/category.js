@@ -1,21 +1,17 @@
 import { Map, List, Record, fromJS } from 'immutable'
-
-const CategoryRecord = Record({
-  _id: "",
-  name: "",
-  gnavi_code: "",
-  gnavi_attribute: "",
-});
+import i18n from '../schema/i18n';
 
 const initialState = Map({
-  list: List()
+  list: List(),
+  total: 10,
 })
 
 const reducer = ( state = initialState, action ) => {
   switch(action.type){
     case "FETCH_CATEGORIES_FULFILLED": {
-      const { categories } = action.payload;
-      return state.set('list', fromJS(categories));
+      const categories = action.payload.categories.results;
+      const total = action.payload.categories.meta.total;
+      return state.set('total', total).set('list', fromJS(categories));
     }
   }
   return state;
