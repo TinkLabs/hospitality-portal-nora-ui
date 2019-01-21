@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { HashRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { SnackbarProvider } from 'notistack';
 
 import store from './redux/store';
 import AppRouter from './AppRouter.js';
@@ -14,9 +15,11 @@ import Layout from './Layout';
 ReactDOM.render(
   <Provider store={store}>
     <MuiThemeProvider>
-      <HashRouter>
-        <AppRouter />
-      </HashRouter>
+      <SnackbarProvider maxSnack={5}>
+        <HashRouter>
+          <AppRouter />
+        </HashRouter>
+      </SnackbarProvider>
     </MuiThemeProvider>
   </Provider>, 
 document.getElementById('root'));

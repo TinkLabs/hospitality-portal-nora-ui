@@ -33,68 +33,7 @@ import { Marker } from 'react-google-maps';
 import { fetchAllRestaurants } from '../../../redux/actions';
 import Map from '../../../components/Map';
 
-const styles = theme => ({
-  root: {
-    width: '100%',
-    backgroundColor: theme.palette.background.paper,
-    position: 'relative',
-    overflow: 'auto',
-    borderRadius: '10px',
-    minHeight: 500,
-    textAlign: 'center',
-  },
-  listSection: {
-    backgroundColor: 'inherit',
-  },
-  ul: {
-    backgroundColor: 'inherit',
-    padding: 0,
-  },
-  listItem: {
-    alignItems: "stretch"
-  },
-  imageBlock: {
-    height: 150,
-    width: 150
-  },
-  listItemTitle: {
-    display: "block",
-    marginBottom: 10,
-  },
-  card: {
-    margin: 20,
-    width: 275,
-    height: 400,
-    display: "inline-block",
-  },
-  media: {
-    height: 140,
-  },
-  cardContent: {
-    textAlign: 'left',
-    minHeight: 180,
-    maxHeight: 180,
-    overflow: "hidden",
-  },
-  searchSection: {
-    marginLeft: 20,
-    marginRight: 20
-  },
-  input: {
-    marginLeft: 10,
-    marginRight: 10,
-    width: 200
-  },
-  pagination: {
-    width: "fit-content",
-    margin: "0 auto"
-  },
-  absolute: {
-    position: 'fixed',
-    bottom: 30,
-    right: 30,
-  },
-});
+import styles from './styles';
 
 const loadingDiv = <div style={{width:`80%` ,height: `100%` }} />;
 
@@ -115,6 +54,7 @@ class Restaurants extends React.Component{
       page_display: 10,
       current_lat: -34.397,
       current_lng: 150.644,
+      selected_language: 'ja_JP',
     }
   }
   
@@ -152,7 +92,6 @@ class Restaurants extends React.Component{
   }
   
   renderListItem(restaurants){
-    console.log(restaurants);
     let classes = this.props.classes;
     return restaurants.map((restaurant) => {
       return (
@@ -164,13 +103,13 @@ class Restaurants extends React.Component{
           />
           <CardContent className={classes.cardContent}>
             <Typography gutterBottom variant="h5" component="h2">
-              {restaurant.get('name')}
+              {restaurant.getIn(['name', this.state.selected_language])}
             </Typography>
             <Typography variant="caption">
               ID: {restaurant.get('_id')}
             </Typography>
             <Typography component="p">
-              {restaurant.get('description')}
+              {restaurant.getIn(['description', this.state.selected_language])}
             </Typography>
           </CardContent>
           <CardActions>
@@ -238,7 +177,7 @@ class Restaurants extends React.Component{
 
 let mapStateToProps = (state) => {
   return {
-    restaurants: state.restaurant.get('list').toJSON(),
+    restaurants: state.restaurant.get('list'),
   };
 }
 

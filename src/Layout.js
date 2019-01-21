@@ -1,5 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import empty from 'is-empty';
+import { withSnackbar } from 'notistack';
+
 
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -17,10 +21,23 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
+import RestaurantIcon from '@material-ui/icons/Restaurant';
+import SyncIcon from '@material-ui/icons/Sync';
+import CategoryIcon from '@material-ui/icons/Category';
+import AreaIcon from '@material-ui/icons/Place';
+
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
+import Snackbar from '@material-ui/core/Snackbar';
+
 
 import LinearLoadingBar from './components/LinearLoadingBar';
 
-import { toggleMenu } from './redux/actions';
+import { toggleMenu, popNotification } from './redux/actions';
 
 const styles = {
   wrapper: {
@@ -34,7 +51,6 @@ const styles = {
     backgroundColor: "#ddd",
     margin: "0",
     padding: "0",
-    height: "-webkit-fill-available"
   },
   list: {
     width: 250,
@@ -52,22 +68,26 @@ const styles = {
 const sideList = (
   <div className={styles.list}>
     <List>
-      {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-        <ListItem button key={text}>
-          <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-          <ListItemText primary={text} />
+      <Link to="/restaurant/index">
+        <ListItem button to="#/restaurant/index">
+          <ListItemIcon><RestaurantIcon /></ListItemIcon>
+          <ListItemText primary={"Restaurant"}/>
         </ListItem>
-      ))}
-    </List>
-    <Divider />
-    <List>
-      {['All mail', 'Trash', 'Spam'].map((text, index) => (
-        <ListItem button key={text}>
-          <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-          <ListItemText primary={text} />
+      </Link>
+      <Link to="/sync/index">
+        <ListItem button>
+          <ListItemIcon><SyncIcon /></ListItemIcon>
+          <ListItemText primary={"Sync"}/>
         </ListItem>
-      ))}
+      </Link>
+      <Link to="/public/vote/6092">
+        <ListItem button>
+          <ListItemIcon><AreaIcon /></ListItemIcon>
+          <ListItemText primary={"Testing Votes"}/>
+        </ListItem>
+      </Link>
     </List>
+    
   </div>
 );
 class Layout extends React.Component{
@@ -75,6 +95,13 @@ class Layout extends React.Component{
   constructor(props){
     super(props);
     this.toggleMenu = this.toggleMenu.bind(this);
+  }
+  
+  componentDidUpdate(){
+    if(this.props.notifications.size > 0){
+      this.props.enqueueSnackbar(this.props.notifications.first());
+      this.props.popNotification();
+    }
   }
   
   toggleMenu(open) {
@@ -106,6 +133,18 @@ class Layout extends React.Component{
             {sideList}
           </div>
         </Drawer>
+        <Dialog
+          open={!empty(this.props.error)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Oops! Something went wrong"}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                ERROR: {this.props.error}
+              </DialogContentText>
+            </DialogContent>
+        </Dialog>
         <div className={this.props.classes.wrapper}>
           {this.props.children}
         </div>
@@ -121,12 +160,17 @@ let mapStateToProps = (state) => {
     showMenu: ui.get('showMenu'),
     title: ui.get('title'),
     fetching: ui.get('fetching'),
+    error: ui.get('error'),
+    notifications: ui.get('notifications'),
   };
 }
 
 let mapActionToProps = {
   toggleMenu,
+  popNotification,
 };
 
 
-export default connect(mapStateToProps, mapActionToProps)(withStyles(styles)(Layout));
+export default connect(mapStateToProps, mapActionToProps)(
+  withSnackbar(withStyles(styles)(Layout))
+);

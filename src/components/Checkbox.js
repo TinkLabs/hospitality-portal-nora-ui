@@ -16,7 +16,7 @@ class Checkbox extends React.Component{
     return (
       <FormControlLabel
         control={
-          <MaterialCheckbox value={value} checked={!empty(selected_item)}/>
+          <MaterialCheckbox {...this.props} value={value} checked={!empty(selected_item)} />
         }
         label={label}
       />

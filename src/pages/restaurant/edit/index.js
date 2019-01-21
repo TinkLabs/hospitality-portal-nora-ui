@@ -12,45 +12,21 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Button from '@material-ui/core/Button';
+import Chip from '@material-ui/core/Chip';
 
 import { withStyles } from '@material-ui/core/styles';
 import { Marker } from 'react-google-maps';
 
 import Typography from '@material-ui/core/Typography';
 
-import { fetchRestaurant, fetchCategories, fetchAreas } from '../../../redux/actions';
+import { fetchRestaurant, fetchCategories, fetchAreas, upsertRestaurant } from '../../../redux/actions';
 import RestaurantRecord from '../../../redux/schema/restaurant';
-import Map from '../../../components/Map';
+import RestaurantMap from '../../../components/RestaurantMap';
 import Checkbox from '../../../components/Checkbox';
-
-
-const styles = (theme) => {
-  return {
-    inputBlock: {
-      marginLeft: "5px",
-      marginRight: "5px"
-    },
-    wrapper: {
-      paddingLeft: "10px",
-      paddingRight: "10px"
-    },
-    multiBlock: {
-      marginTop: "10px",
-      marginBottom: "10px",
-      display: "block"
-    },
-    submitButton: {
-      marginTop: "10px",
-      marginBottom: "20px"
-    },
-    coverImage: {
-      width: "100%",
-      borderRadius: "5px",
-      height: "250px",
-      objectFit: "cover",
-    }
-  }
-}
+import AutoCompleteWithChip from '../../../components/AutoCompleteWithChip/index';
+import ImagePicker from '../../../components/ImagePicker/index';
+import FileUploadDialog from '../../../components/FileUploadDialog';
+import styles from './styles';
 
 const loadingDiv = <div style={{ width: '100%', height: `250px` }} />;
 
@@ -60,12 +36,16 @@ class RestaurantEdit extends React.Component{
     super(props);
     this.state = {
       current: RestaurantRecord({}),
+      selected_language: "ja_JP",
+      show_uploadDialog: false,
     }
   }
   
   componentDidMount(){
-    console.log('componentDidMount');
-    console.log(this.props);
+    this.onImageAdd = this.onImageAdd.bind(this);
+    this.onImageDelete = this.onImageDelete.bind(this);
+    this.onImageUpload = this.onImageUpload.bind(this);
+    this.onCloseUploadDialog = this.onCloseUploadDialog.bind(this);
     this.changeLocation = this.changeLocation.bind(this);
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeBudget = this.onChangeBudget.bind(this);
@@ -91,6 +71,9 @@ class RestaurantEdit extends React.Component{
     this.onChangeAccessNote = this.onChangeAccessNote.bind(this);
     this.onChangeAccessWalk = this.onChangeAccessWalk.bind(this);
     this.onChangeAccessParking = this.onChangeAccessParking.bind(this);
+    this.onChangeCategory = this.onChangeCategory.bind(this);
+    this.onChangeArea = this.onChangeArea.bind(this);
+    this.onRestaurantSubmit = this.onRestaurantSubmit.bind(this);
     this.props.fetchRestaurant(this.props.match.params.id);
     this.props.fetchCategories();
     this.props.fetchAreas();
@@ -103,9 +86,36 @@ class RestaurantEdit extends React.Component{
     return null;
   }
   
+  onImageDelete(item, index){
+    let images = this.state.current.get('images').remove(index);
+    this.setState({
+      current: this.state.current.setIn(['images'], images),
+    });
+  }
+  
+  onImageAdd(){
+    this.setState({
+      show_uploadDialog: true,
+    });
+  }
+  
+  onImageUpload(image_url){
+    let images = this.state.current.get('images').push(image_url);
+    this.setState({
+      current: this.state.current.setIn(['images'], images),
+      show_uploadDialog: false,
+    })
+  }
+  
+  onCloseUploadDialog(){
+    this.setState({
+      show_uploadDialog: false,
+    })
+  }
+  
   onChangeName(e){
     this.setState({
-      current: this.state.current.set('name', e.target.value)
+      current: this.state.current.setIn(['name', this.state.selected_language], e.target.value)
     });
   }
   
@@ -147,7 +157,7 @@ class RestaurantEdit extends React.Component{
   
   onChangeDescription(e){
     this.setState({
-      current: this.state.current.set('description', e.target.value)
+      current: this.state.current.setIn(['description', this.state.selected_language], e.target.value)
     });
   }
   
@@ -177,73 +187,116 @@ class RestaurantEdit extends React.Component{
   
   onChangeInfoOpentime(e){
     this.setState({
-      current: this.state.current.set('info_opentime', e.target.value)
+      current: this.state.current.setIn(['info_opentime', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeInfoHoliday(e){
     this.setState({
-      current: this.state.current.set('info_holiday', e.target.value)
+      current: this.state.current.setIn(['info_holiday', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeInfoParty(e){
     this.setState({
-      current: this.state.current.set('info_party', e.target.value)
+      current: this.state.current.setIn(['info_party', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeInfoLunch(e){
     this.setState({
-      current: this.state.current.set('info_lunch', e.target.value)
+      current: this.state.current.setIn(['info_lunch', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeInfoCc(e){
     this.setState({
-      current: this.state.current.set('info_cc', e.target.value)
+      current: this.state.current.setIn(['info_cc', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeInfoEMoney(e){
     this.setState({
-      current: this.state.current.set('info_e_money', e.target.value)
+      current: this.state.current.setIn(['info_e_money', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeAccessLine(e){
     this.setState({
-      current: this.state.current.set('access_line', e.target.value)
+      current: this.state.current.setIn(['access_line', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeAccessStation(e){
     this.setState({
-      current: this.state.current.set('access_station', e.target.value)
+      current: this.state.current.setIn(['access_station', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeAccessStationExit(e){
     this.setState({
-      current: this.state.current.set('access_station_exit', e.target.value)
+      current: this.state.current.setIn(['access_station_exit', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeAccessNote(e){
     this.setState({
-      current: this.state.current.set('access_note', e.target.value)
+      current: this.state.current.setIn(['access_note', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeAccessWalk(e){
     this.setState({
-      current: this.state.current.set('access_walk', e.target.value)
+      current: this.state.current.setIn(['access_walk', this.state.selected_language], e.target.value)
     });
   }
   
   onChangeAccessParking(e){
     this.setState({
-      current: this.state.current.set('access_parking', e.target.value)
+      current: this.state.current.setIn(['access_parking', this.state.selected_language], e.target.value)
+    });
+  }
+  
+  onChangeArea(toggle, area){
+    if(toggle){
+      this.setState({
+        current: this.state.current.set('areas' ,this.state.current.get('areas').insert(0, {_id: area.get('_id')})),
+      });
+    }else{
+      let delete_index = this.state.current.get('areas').findIndex((area_item)=>{
+        return area_item._id == area.get('_id');
+      });
+      this.setState({
+        current: this.state.current.set('areas', this.state.current.get('areas').delete(delete_index))
+      })
+    }
+  }
+  
+  onChangeCategory(toggle, category){
+    if(toggle){
+      this.setState({
+        current: this.state.current.set('categories' ,this.state.current.get('categories').insert(0, {_id: category.get('_id')})),
+      });
+    }else{
+      let delete_index = this.state.current.get('categories').findIndex((category_item) => {
+        return category_item._id == category.get('_id');
+      });
+      this.setState({
+        current: this.state.current.set('categories', this.state.current.get('categories').delete(delete_index))
+      })
+    }
+    
+  }
+  
+  onRestaurantSubmit(){
+    let json_restaurant = ({
+      ...this.state.current.toJSON(), 
+      categories: this.state.current.categories.toJSON(),
+      areas: this.state.current.areas.toJSON()
+    });
+    this.props.upsertRestaurant(json_restaurant);
+    this.setState({
+      reload: true,
     });
   }
   
@@ -254,26 +307,51 @@ class RestaurantEdit extends React.Component{
     this.setState({
       current: current
     });
-    console.log(e.latLng.lat());
-    console.log(e.latLng.lng())
   }
   
   render() {
-    console.log(this.props);
+    console.log('rendering');
     let current_restaurant = this.state.current;
     let categories = this.props.categories;
-    const categoryCheckbox = categories.map(option => {
-      return (<Checkbox value={option.get('_id')} label={option.get('name')} selected_id_set={current_restaurant.get('categories')} />);
-    });
+    let selected_language = this.state.selected_language;
+    const categoryOptions = categories.map((category) => {
+      return {
+        value: category.get('_id'),
+        label: category.getIn(['name', 'ja_JP'])
+      };
+    })
+    const categoryValues = current_restaurant.get('categories').map((category) => {
+      return {
+        value: category._id,
+        label: category.name.ja_JP
+      }
+    }).toJSON();
     let areas = this.props.areas;
-    const areaCheckbox = areas.map(option => {
-      return (<Checkbox value={option.get('_id')} label={option.get('name')} selected_id_set={current_restaurant.get('areas')} />);
+    const areaOptions = areas.map((area) => {
+      return {
+        value: area.get('_id'),
+        label: area.getIn(['name', 'ja_JP'])
+      }
     });
+    const areaValues = current_restaurant.get('areas').map((area) => {
+      return {
+        value: area._id,
+        label: area.name.ja_JP
+      }
+    }).toJSON();
+    console.log('images:', current_restaurant.get('images'));
+    const images = current_restaurant.get('images').map((image) => {
+      return {
+        src: image,
+      };
+    }).toJSON();
     return (
       <div>
+        <FileUploadDialog open={this.state.show_uploadDialog} onClose={this.onCloseUploadDialog} onSubmit={this.onImageUpload}/>
         <div className={this.props.classes.wrapper}>
-          <h1>{current_restaurant.name}</h1>
+          <h1>{current_restaurant.getIn(['name', this.state.selected_language])}</h1>
           <img src={current_restaurant.cover_image} className={this.props.classes.coverImage} />
+          <ImagePicker items={images} onImageAdd={this.onImageAdd} onImageDelete={this.onImageDelete}/>
           <form>
             <TextField
               id="id"
@@ -289,33 +367,38 @@ class RestaurantEdit extends React.Component{
               label={"Name"}
               margin="normal"
               fullWidth={true}
-              value={current_restaurant.name}
+              value={current_restaurant.getIn(['name', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeName}
             />
-            <FormControl component="fieldset" className={[this.props.classes.inputBlock, this.props.classes.multiBlock]}>
-              <FormLabel component="legend">Categories</FormLabel>
-              <FormGroup row={true}>
-                {categoryCheckbox}
-              </FormGroup>
-            </FormControl>
-            <FormControl component="fieldset" className={[this.props.classes.inputBlock, this.props.classes.multiBlock]}>
-              <FormLabel component="legend">Areas</FormLabel>
-              <FormGroup row={true}>
-                {areaCheckbox}
-              </FormGroup>
-            </FormControl>
-            <Map 
-              googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyDI4R0JTd3dwrzyo0P7l1RiHeduEydL5R0&v=2"
-              loadingElement={loadingDiv}
-              containerElement={loadingDiv}
-              mapElement={loadingDiv}
-              center={{ lat: parseFloat(current_restaurant.lat), lng: parseFloat(current_restaurant.lng) }}
-              onClick={this.changeLocation}
-            >
-              <Marker position={{ lat: parseFloat(current_restaurant.lat), lng: parseFloat(current_restaurant.lng) }} />
-            </Map>
-            <FormHelperText><Typography variant="caption">Right Click on the map to modify the latitude, longitude</Typography></FormHelperText>
+            <div className={this.props.classes.inputBlock}>
+              <AutoCompleteWithChip 
+                title={"Category"}
+                options={categoryOptions}
+                selected={categoryValues}
+              />
+            </div>
+            <div className={this.props.classes.inputBlock}>
+              <AutoCompleteWithChip 
+                title={"Area"}
+                options={areaOptions}
+                selected={areaValues}
+              />
+            </div>
+            <div className={this.props.classes.inputBlock}>
+              <RestaurantMap 
+                googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyDI4R0JTd3dwrzyo0P7l1RiHeduEydL5R0&v=2"
+                loadingElement={loadingDiv}
+                containerElement={loadingDiv}
+                mapElement={loadingDiv}
+                defaultZoom={20}
+                center={{ lat: parseFloat(current_restaurant.lat), lng: parseFloat(current_restaurant.lng) }}
+                onRightClick={this.changeLocation}
+              >
+                <Marker position={{ lat: parseFloat(current_restaurant.lat), lng: parseFloat(current_restaurant.lng) }} />
+              </RestaurantMap>
+              <FormHelperText><Typography variant="caption">Right Click on the map to modify the latitude, longitude</Typography></FormHelperText>
+            </div>
             <TextField
               id="budget"
               label={"Budget"}
@@ -370,7 +453,7 @@ class RestaurantEdit extends React.Component{
               margin="normal"
               multiline={true}
               fullWidth={true}
-              value={current_restaurant.description}
+              value={current_restaurant.getIn(['description', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeDescription}
             />
@@ -414,7 +497,7 @@ class RestaurantEdit extends React.Component{
               id="info_opentime"
               label={"Open Time"}
               margin="normal"
-              value={current_restaurant.info_opentime}
+              value={current_restaurant.getIn(['info_opentime', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeInfoOpentime}
             />
@@ -422,7 +505,7 @@ class RestaurantEdit extends React.Component{
               id="info_holiday"
               label={"Holiday"}
               margin="normal"
-              value={current_restaurant.info_holiday}
+              value={current_restaurant.getIn(['info_holiday', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeInfoHoliday}
             />
@@ -430,7 +513,7 @@ class RestaurantEdit extends React.Component{
               id="info_party"
               label={"Party"}
               margin="normal"
-              value={current_restaurant.info_party}
+              value={current_restaurant.getIn(['info_party', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeInfoParty}
             />
@@ -438,7 +521,7 @@ class RestaurantEdit extends React.Component{
               id="info_lunch"
               label={"Lunch"}
               margin="normal"
-              value={current_restaurant.info_lunch}
+              value={current_restaurant.getIn(['info_lunch', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeInfoLunch}
             />
@@ -446,7 +529,7 @@ class RestaurantEdit extends React.Component{
               id="info_cc"
               label={"Credit Card"}
               margin="normal"
-              value={current_restaurant.info_cc}
+              value={current_restaurant.getIn(['info_cc', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeInfoCc}
             />
@@ -454,7 +537,7 @@ class RestaurantEdit extends React.Component{
               id="info_e_money"
               label={"E Money"}
               margin="normal"
-              value={current_restaurant.info_c_money}
+              value={current_restaurant.getIn(['info_e_money', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeInfoEMoney}
             />
@@ -462,7 +545,7 @@ class RestaurantEdit extends React.Component{
               id="access_line"
               label={"Line"}
               margin="normal"
-              value={current_restaurant.access_line}
+              value={current_restaurant.getIn(['access_line', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeAccessLine}
             />
@@ -470,7 +553,7 @@ class RestaurantEdit extends React.Component{
               id="access_station"
               label={"station"}
               margin="normal"
-              value={current_restaurant.access_station}
+              value={current_restaurant.getIn(['access_station', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeAccessStation}
             />
@@ -478,7 +561,7 @@ class RestaurantEdit extends React.Component{
               id="access_station_exit"
               label={"station_exit"}
               margin="normal"
-              value={current_restaurant.access_station_exit}
+              value={current_restaurant.getIn(['access_station_exit', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeAccessStationExit}
             />
@@ -486,7 +569,7 @@ class RestaurantEdit extends React.Component{
               id="access_note"
               label={"Note"}
               margin="normal"
-              value={current_restaurant.access_note}
+              value={current_restaurant.getIn(['access_note', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeAccessNote}
             />
@@ -494,7 +577,7 @@ class RestaurantEdit extends React.Component{
               id="access_walk"
               label={"Walk"}
               margin="normal"
-              value={current_restaurant.access_walk}
+              value={current_restaurant.getIn(['access_walk', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeAccessWalk}
             />
@@ -502,7 +585,7 @@ class RestaurantEdit extends React.Component{
               id="access_parking"
               label={"Parking"}
               margin="normal"
-              value={current_restaurant.access_parking}
+              value={current_restaurant.getIn(['access_parking', this.state.selected_language])}
               className={this.props.classes.inputBlock}
               onChange={this.onChangeAccessParking}
             />
@@ -512,6 +595,7 @@ class RestaurantEdit extends React.Component{
             color="primary" 
             fullWidth="true"
             className={this.props.classes.submitButton}
+            onClick={this.onRestaurantSubmit}
           >
             Save
           </Button>
@@ -528,15 +612,16 @@ const mapStateToProps = (state) => {
   let areas = state.areas.get('list');
   return {
     current: current,
-    categories: categories.toJSON(),
-    areas: areas.toJSON()
+    categories: categories,
+    areas: areas
   }
 }
 
 const mapActionToProps = {
   fetchRestaurant,
   fetchCategories,
-  fetchAreas
+  fetchAreas,
+  upsertRestaurant,
 }
 
 export default connect(mapStateToProps, mapActionToProps)(withStyles(styles)(RestaurantEdit));

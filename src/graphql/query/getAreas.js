@@ -1,10 +1,18 @@
+import i18n from '../i18n';
+import meta from '../meta';
+
 const query = `
 query {
   areas{
-    _id
-    name
-    gnavi_code
-    gnavi_attribute
+    ${meta}
+    results{
+      ... on CMS_Area{
+        _id
+        name ${i18n}
+        gnavi_code
+        gnavi_attribute
+      }
+    }
   }
 }
 `;
