@@ -25,6 +25,7 @@ import RestaurantIcon from '@material-ui/icons/Restaurant';
 import SyncIcon from '@material-ui/icons/Sync';
 import CategoryIcon from '@material-ui/icons/Category';
 import AreaIcon from '@material-ui/icons/Place';
+import HotelIcon from '@material-ui/icons/Hotel';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -39,30 +40,32 @@ import LinearLoadingBar from './components/LinearLoadingBar';
 
 import { toggleMenu, popNotification } from './redux/actions';
 
-const styles = {
-  wrapper: {
-    borderRadius: "10px",
-    margin: "0 auto",
-    width: "80%",
-    backgroundColor: "#fff",
-    marginTop: "10px"
-  },
-  background: {
-    backgroundColor: "#ddd",
-    margin: "0",
-    padding: "0",
-  },
-  list: {
-    width: 250,
-  },
-  title: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: 20,
-    marginLeft: 20
-  },
-  
+const styles = (theme) => {
+  return {
+    wrapper: {
+      borderRadius: "10px",
+      margin: "0 auto",
+      width: "80%",
+      backgroundColor: "#fff",
+      marginTop: "10px"
+    },
+    background: {
+      backgroundColor: "#ddd",
+      margin: "0",
+      padding: "0",
+      minHeight: "100%"
+    },
+    list: {
+      width: 250,
+    },
+    title: {
+      flexGrow: 1,
+    },
+    menuButton: {
+      marginRight: 20,
+      marginLeft: 20
+    },
+  };
 };
 
 const sideList = (
@@ -78,6 +81,12 @@ const sideList = (
         <ListItem button>
           <ListItemIcon><SyncIcon /></ListItemIcon>
           <ListItemText primary={"Sync"}/>
+        </ListItem>
+      </Link>
+      <Link to="/hotel/index">
+        <ListItem button>
+          <ListItemIcon><HotelIcon /></ListItemIcon>
+          <ListItemText primary={"Hotel"}/>
         </ListItem>
       </Link>
       <Link to="/public/vote/6092">

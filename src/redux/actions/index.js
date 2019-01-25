@@ -6,6 +6,7 @@ import getAllRestaurants from '../../graphql/query/getAllRestaurants';
 import getSyncStatus from '../../graphql/query/getSyncStatus';
 import getRestaurantsByLatLng from '../../graphql/query/getRestaurantsByLatLng';
 import getHotelById from '../../graphql/query/getHotelById';
+import getHotels from '../../graphql/query/getHotels';
 import updateRestaurant from '../../graphql/mutation/upsertRestaurant';
 import updateComment from '../../graphql/mutation/upsertComment';
 
@@ -35,6 +36,13 @@ export const fetchAllRestaurants = (id, keyword, offset) => {
     type: "FETCH_ALL_RESTAURANTS",
     payload: graphql.request(getAllRestaurants, {_id: id, keyword: keyword, offset: offset})
   };
+}
+
+export const fetchAllHotels = (offset, limit, id) => {
+  return {
+    type: "FETCH_ALL_HOTELS",
+    payload: graphql.request(getHotels, {_id: id, offset: offset, limit: limit})
+  }
 }
 
 export const fetchSyncStatus = (offset, limit) => {

@@ -13,6 +13,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import TablePagination from '@material-ui/core/TablePagination';
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 
@@ -35,8 +36,42 @@ const styles = (theme) => {
 
 class Sync extends React.Component{
   
+  constructor(props){
+    super(props);
+    this.onChangePage = this.onChangePage.bind(this);
+    this.renderFooter = this.renderFooter.bind(this);
+    this.state = {
+      total: 100,
+      recordPerPage: 10,
+      page: 0,
+    }
+  }
+  
+  onChangePage(e){
+    console.log(e);
+  }
+  
   componentDidMount(){
     this.props.fetchSyncStatus();
+  }
+  
+  renderFooter(){
+    return (
+      <TableRow>
+        <TablePagination
+          count={this.state.total}
+          rowsPerPage={this.state.recordPerPage}
+          page={this.state.page}
+          onChangePage={this.onChangePage}
+          backIconButtonProps={{
+            'aria-label': 'Previous Page',
+          }}
+          nextIconButtonProps={{
+            'aria-label': 'Next Page',
+          }}
+        />
+      </TableRow>
+    );
   }
   
   render(){
@@ -66,6 +101,7 @@ class Sync extends React.Component{
               );
             })}
           </TableBody>
+          {this.renderFooter()}
         </Table>
       </div>
     );

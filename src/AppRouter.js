@@ -9,6 +9,7 @@ import Restaurants from './pages/restaurant/index';
 import Sync from './pages/sync/index';
 import Votes from './pages/public/votes';
 import Category from './pages/category/index';
+import Hotel from './pages/hotel/index';
 
 import Layout from './Layout';
 
@@ -25,6 +26,7 @@ class AppRouter extends React.Component{
             <Route path='/restaurant/edit/:id' component={RestaurantEdit}/>
             <Route path='/sync/index' component={Sync}/>
             <Route path='/category/index' component={Category}/>
+            <Route path='/hotel/index' component={Hotel} />
           </Layout>
         </Switch>
       </Route>
