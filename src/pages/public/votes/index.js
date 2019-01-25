@@ -14,6 +14,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 
 import { Rating } from 'material-ui-rating';
 import debounce from 'debounce';
+import jwt from 'jsonwebtoken';
 
 import RestaurantMap from '../../../components/RestaurantMap';
 import { fetchRestaurantsByLatLng, fetchHotelById, initCommentForm, upsertComment} from '../../../redux/actions';
@@ -61,7 +62,8 @@ class Votes extends React.Component{
   }
   
   componentDidMount(){
-    this.props.initCommentForm(parseInt(this.props.match.params.hotel_token));
+    let hotel_id = jwt.decode(this.props.match.params.hotel_token).hotel_id;
+    this.props.initCommentForm(hotel_id);
   }
   
   toggleCommentForm(open){
@@ -97,7 +99,9 @@ class Votes extends React.Component{
   }
   
   onCommentFormSubmit(restaurant, rating, comment){
-    console.log(restaurant.get('_id'), rating, comment, this.state.userName);
+    this.setState({
+      showCommentForm: false,
+    });
     this.props.upsertComment({
       userName: this.state.userName,
       rating: rating,
@@ -135,7 +139,6 @@ class Votes extends React.Component{
   }
   
   render(){
-    console.log(this.props.currentHotel)
     let classes = this.props.classes;
     return (
       <div className={classes.fullPage}>

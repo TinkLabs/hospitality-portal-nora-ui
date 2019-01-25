@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import empty from 'is-empty';
 
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -12,6 +13,7 @@ import Drawer from '@material-ui/core/Drawer';
 import { Rating } from 'material-ui-rating';
 
 import styles from './styles';
+import fallback_image from '../../../../../images/fallback.jpg';
 
 
 class CommentForm extends React.Component{
@@ -67,7 +69,7 @@ class CommentForm extends React.Component{
       <Drawer anchor="right" open={open} onClose={this.props.onClose}>
         <div className={classes.form}>
           <div className={classes.wrapper}>
-            <img className={classes.coverImg} src={restaurant.get('cover_image')} />
+            <img className={classes.coverImg} src={(!empty(restaurant.get('cover_image'))) ? restaurant.get('cover_image') : fallback_image } />
             <Typography variant="headline" className={classes.title}>{restaurant.getIn(['name','ja_JP'])}</Typography>
             <Typography variant="caption" className={classes.caption}>{restaurant.get('address')}</Typography>
             <Typography variant="caption" className={classes.caption}>{restaurant.get('tel')}</Typography>

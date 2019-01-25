@@ -30,6 +30,7 @@ import { List } from 'react-content-loader';
 import debounce from 'debounce';
 import { Marker } from 'react-google-maps';
 
+import SearchBar from '../../../components/SearchBar';
 import { fetchAllRestaurants } from '../../../redux/actions';
 import Map from '../../../components/Map';
 
@@ -46,6 +47,7 @@ class Restaurants extends React.Component{
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeId = this.onChangeId.bind(this);
     this.onChangePage = this.onChangePage.bind(this);
+    this.onSearch = this.onSearch.bind(this);
     this.state = {
       keyword: '',
       id: '',
@@ -60,6 +62,24 @@ class Restaurants extends React.Component{
   
   componentDidMount(){
     this.props.fetchAllRestaurants();
+  }
+  
+  onSearch(attribute, value){
+    if(attribute === 'Keyword'){
+      this.setState({
+        keyword: value,
+        id: '',
+      }, () => {
+        this.reloadRestaurants();
+      })
+    }else if(attribute === 'ID'){
+      this.setState({
+        id: value,
+        keyword: '',
+      }, () => {
+        this.reloadRestaurants();
+      })
+    }
   }
   
   onChangeName(e) {
@@ -135,21 +155,9 @@ class Restaurants extends React.Component{
     return (
       <div>
         <div className={classes.searchSection}>
-          <TextField
-            id="standard-name"
-            label="Keyword"
-            margin="normal"
-            value={this.state.keyword}
-            className={classes.input}
-            onChange={this.onChangeName}
-          />
-          <TextField
-            id="standard-name"
-            label="ID"
-            margin="normal"
-            value={this.state.id}
-            className={classes.input}
-            onChange={this.onChangeId}
+          <SearchBar
+            attributes={["ID", "Keyword"]}
+            onSearch={this.onSearch}
           />
         </div>
         <div className={classes.root}>
@@ -164,11 +172,6 @@ class Restaurants extends React.Component{
             display = {5}
           />
         </div>
-        <Tooltip title="Add" aria-label="Add">
-          <Fab color="secondary" className={classes.absolute}>
-            <AddIcon />
-          </Fab>
-        </Tooltip>
       </div>
     );
   }
