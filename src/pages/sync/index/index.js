@@ -47,8 +47,12 @@ class Sync extends React.Component{
     }
   }
   
-  onChangePage(e){
-    console.log(e);
+  onChangePage(e, page){
+    this.setState({
+      page: page
+    }, () => {
+      this.props.fetchSyncStatus(this.state.page * this.state.recordPerPage, this.state.recordPerPage);
+    });
   }
   
   componentDidMount(){
